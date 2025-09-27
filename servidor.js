@@ -67,6 +67,68 @@ app.get('/jugadores', (req, res) => {
     }); // Devolver los resultados filtrados
 });     
 
+let proximoId = 4; // Variable para asignar IDs únicos
+
+// Crear un nuevo jugador
+app.post('/jugadores', (req, res) => {
+    const { nickname, juego, nivel, pais } = req.body;
+
+    if(!nickname) {
+        return res.status(400).json({ mensaje: "El campo 'nickname' es obligatorio" });
+    }
+
+    if(!juego) {
+        return res.status(400).json({ mensaje: "El campo 'juego' es obligatorio" });
+    }
+
+    if(!nivel) {
+        return res.status(400).json({ mensaje: "El campo 'nivel' es obligatorio" });
+    }
+
+    if(!pais) {
+        return res.status(400).json({ mensaje: "El campo 'pais' es obligatorio" });
+    }
+   const nicknameExistente = jugadores.find(j => j.nickname.toLowerCase() === nickname.toLowerCase());
+
+   if(nicknameExistente) {
+        return res.status(400).json({ mensaje: "Este nickname ya existe, elija otro" });
+   }
+
+    const nuevoJugador = { // Crear el nuevo jugador con un ID único
+        id: proximoId++, // Incrementar el ID para el próximo jugador
+        nickname, 
+        juego,
+        nivel,
+        pais
+    };
+
+    jugadores.push(nuevoJugador); // Agregar el nuevo jugador al array
+
+    res.status(201).json({
+        mensaje: "nuevo jugador creado exitosamente",
+        jugador: nuevoJugador}); // Devolver el nuevo jugador creado
+});
+
+app.put('/jugadores/:id', (req, res) => { // Ruta para actualizar un jugador por ID
+    const id = parseInt(req.params.id); // Obtener el ID del jugador desde los parámetros de la URL
+    const { nickname, juego, nivel, pais } = req.body;
+
+    const jugador = jugadores.find(j => j.id === id);
+
+    if (!jugador) {
+        return res.status(404).json({ mensaje: "Jugador no encontrado" });
+    }
+
+    // Actualizar los campos del jugador
+    jugador.nickname = nickname || jugador.nickname;
+    jugador.juego = juego || jugador.juego;
+    jugador.nivel = nivel || jugador.nivel;
+    jugador.pais = pais || jugador.pais;
+
+    res.json(jugador);
+});
+
+
 
 
 
